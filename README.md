@@ -1,116 +1,84 @@
-# Firecrawl CLI
+# Web Scraper Assistant
 
-A command-line interface for the Firecrawl API that helps you crawl and scrape websites with ease.
+A powerful web scraping CLI tool powered by Crawl4AI.
 
 ## Features
 
-- Start web crawls with customizable parameters
-- Check crawl status
-- Support for both markdown and HTML output formats
-- Rich terminal UI with colored output
-- Environment variable configuration
-
-## Prerequisites
-
-- Python 3.7 or higher
-- [uv](https://github.com/astral-sh/uv) - Fast Python package installer
-- A Firecrawl API key from [firecrawl.dev](https://firecrawl.dev)
+- Fast and efficient web crawling using Crawl4AI
+- Support for multiple output formats (text, HTML, Markdown)
+- Configurable crawl depth and wait times
+- Headless browser support
+- Built-in diagnostics
 
 ## Installation
 
-1. Clone the repository:
+1. Clone this repository:
 
 ```bash
-git clone https://github.com/yourusername/firecrawl-cli.git
-cd firecrawl-cli
+git clone https://github.com/yourusername/web-scraper-assistant.git
+cd web-scraper-assistant
 ```
 
-2. Create and activate a virtual environment using uv:
-
-```bash
-uv venv
-# On Windows:
-.venv/Scripts/activate
-# On Unix/MacOS:
-source .venv/bin/activate
-```
-
-3. Install dependencies:
-
-```bash
-uv pip install -r requirements/requirements.txt
-```
-
-4. Install the CLI in development mode:
+2. Install dependencies using uv:
 
 ```bash
 uv pip install -e .
 ```
 
-## Configuration
+## Usage
 
-Create a `.env` file in the root directory with your Firecrawl API key:
+### Basic Crawling
 
-```env
-FIRECRAWL_API_KEY=your-api-key-here
+```bash
+webscraper crawl https://example.com
 ```
 
-## Usage
+### Advanced Options
+
+```bash
+webscraper crawl https://example.com \
+  --depth 5 \
+  --wait 2.0 \
+  --format markdown \
+  --output results.md \
+  --no-headless
+```
+
+### Options
+
+- `--depth, -d`: Maximum crawl depth (default: 3)
+- `--wait, -w`: Wait time between requests in seconds (default: 1.0)
+- `--format, -f`: Output format [text|html|markdown] (default: text)
+- `--output, -o`: Save results to file
+- `--headless/--no-headless`: Run browser in headless mode (default: headless)
 
 ### Check Version
 
 ```bash
-firecrawl version
+webscraper version
 ```
 
-### Start a Crawl
+### Run Diagnostics
 
 ```bash
-firecrawl crawl https://example.com --depth 3 --wait 1 --format both
-```
-
-Options:
-
-- `--depth, -d`: Maximum number of pages to crawl (default: 3)
-- `--wait, -w`: Wait time between requests in seconds (default: 0)
-- `--format, -f`: Output format [markdown|html|both] (default: both)
-
-### Check Crawl Status
-
-```bash
-firecrawl status <crawl-id>
+webscraper doctor
 ```
 
 ## Development
 
-The project structure:
+1. Create a virtual environment:
 
-```
-firecrawl-cli/
-├── src/
-│   ├── __init__.py
-│   └── cli.py
-├── requirements/
-│   └── requirements.txt
-├── .env
-├── README.md
-└── setup.py
+```bash
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 ```
 
-## Contributing
+2. Install development dependencies:
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+```bash
+uv pip install -e ".[dev]"
+```
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
-
-- [Firecrawl](https://firecrawl.dev) for providing the API
-- [Click](https://click.palletsprojects.com/) for the CLI framework
-- [Rich](https://rich.readthedocs.io/) for beautiful terminal formatting
+MIT License - see [LICENSE](LICENSE) for details.

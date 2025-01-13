@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="firecrawl-cli",
+    name="web-scraper-assistant",
     version="0.1.0",
     packages=find_packages(),
     include_package_data=True,
@@ -11,15 +11,17 @@ setup(
         "python-dotenv>=1.0.0",
         "rich>=13.7.0",
         "pydantic>=2.5.3",
+        "crawl4ai>=0.4.247",
+        "asyncio>=3.4.3",
     ],
     entry_points={
         "console_scripts": [
-            "firecrawl=src.cli:cli",
+            "webscraper=src.cli:cli",
         ],
     },
-    author="Your Name",
+    author="Web Scraper Assistant Contributors",
     author_email="your.email@example.com",
-    description="A CLI tool for interacting with the Firecrawl API",
-    keywords="web crawler, cli, api",
-    python_requires=">=3.7",
+    description="A CLI tool for web scraping using Crawl4AI",
+    keywords="web crawler, cli, api, crawl4ai",
+    python_requires=">=3.8",
 )
