@@ -12,10 +12,13 @@ from crawl4ai import AsyncWebCrawler, CacheMode
 from crawl4ai.async_configs import BrowserConfig, CrawlerRunConfig
 from crawl4ai.content_filter_strategy import PruningContentFilter
 from crawl4ai.markdown_generation_strategy import DefaultMarkdownGenerator
+from .extraction_strategy import InputFormat, ExtractionType
+from .providers import OpenAIExtractionStrategy, DeepSeekExtractionStrategy
 from functools import wraps
 import urllib.parse
 import pathlib
 import re
+import json
 
 # Initialize Rich console
 console = Console()
@@ -458,6 +461,83 @@ async def crawl_docs(base_url: str, output_dir: str, max_concurrent: int,
     except Exception as e:
         console.print(Panel.fit(
             f"[red]Failed to crawl documentation:[/red]\n{str(e)}"
+        ))
+        raise click.Abort()
+
+@cli.command()
+@click.argument('input_file', type=click.Path(exists=True))
+@click.option('--provider', '-p', type=click.Choice(['openai', 'deepseek']), default='openai', help='LLM provider to use')
+@click.option('--output', '-o', type=str, help='Output JSON file path')
+@click.option('--schema', '-s', type=click.Path(exists=True), help='JSON schema file for extraction')
+@click.option('--instruction', '-i', type=str, help='Instruction for the LLM')
+@click.option('--chunk-size', '-c', type=int, default=4000, help='Token chunk size')
+@click.option('--overlap', type=float, default=0.1, help='Chunk overlap rate')
+@async_command
+async def extract(input_file: str, provider: str, output: Optional[str], schema: Optional[str],
+                 instruction: str, chunk_size: int, overlap: float):
+    """Extract structured information from text using LLM"""
+    try:
+        # Load API keys
+        api_key = os.getenv(f"{provider.upper()}_API_KEY")
+        if not api_key:
+            raise click.UsageError(f"Missing {provider.upper()}_API_KEY in environment variables")
+
+        # Load schema if provided
+        schema_dict = None
+        if schema:
+            with open(schema, 'r') as f:
+                schema_dict = json.load(f)
+
+        # Read input file
+        with open(input_file, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        # Initialize extraction strategy based on provider
+        strategy_class = OpenAIExtractionStrategy if provider == 'openai' else DeepSeekExtractionStrategy
+        strategy = strategy_class(
+            api_token=api_key,
+            schema=schema_dict,
+            instruction=instruction or "Extract structured information from the text",
+            chunk_token_threshold=chunk_size,
+            overlap_rate=overlap,
+            extra_args={
+                "temperature": 0.0,
+                "max_tokens": 3000
+            }
+        )
+
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=console
+        ) as progress:
+            task = progress.add_task(f"[cyan]Extracting information using {provider}...", total=None)
+
+            # Process content
+            result = await strategy.process_content(content)
+
+            # Show usage statistics
+            strategy.show_usage()
+
+            # Save or display results
+            if output:
+                with open(output, 'w', encoding='utf-8') as f:
+                    f.write(result)
+                console.print(Panel.fit(
+                    f"[green]Extraction completed successfully![/green]\n"
+                    f"Results saved to: {output}"
+                ))
+            else:
+                # Display results in console
+                try:
+                    parsed_result = json.loads(result)
+                    console.print_json(data=parsed_result)
+                except json.JSONDecodeError:
+                    console.print(Panel.fit(result))
+
+    except Exception as e:
+        console.print(Panel.fit(
+            f"[red]Failed to extract information:[/red]\n{str(e)}"
         ))
         raise click.Abort()
 

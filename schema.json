@@ -1,0 +1,21 @@
+{
+	"type": "object",
+	"properties": {
+		"title": {
+			"type": "string",
+			"description": "The title of the article or document"
+		},
+		"main_points": {
+			"type": "array",
+			"items": {
+				"type": "string"
+			},
+			"description": "Key points or main ideas from the text"
+		},
+		"summary": {
+			"type": "string",
+			"description": "A brief summary of the content"
+		}
+	},
+	"required": ["title", "main_points", "summary"]
+}
